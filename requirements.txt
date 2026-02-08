@@ -4,3 +4,5 @@ requests
 feedgen
 cachetools
 httpx
+anyio
+async-timeout
