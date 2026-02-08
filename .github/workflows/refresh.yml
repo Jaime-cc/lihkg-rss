@@ -1,0 +1,21 @@
+name: Refresh LIHKG Cache
+
+on:
+  schedule:
+    # 每 30 分鐘一次（香港時間要自己換算，GitHub 用 UTC）
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call refresh_all
+        env:
+          BASE_URL: https://web-production-719c3.up.railway.app
+        run: |
+          set -e
+          echo "Calling: $BASE_URL/refresh_all"
+          curl -sS --fail "$BASE_URL/refresh_all?t=$(date +%s)" | head -c 500
+          echo
