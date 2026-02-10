@@ -326,3 +326,29 @@ async def refresh_all(background_tasks: BackgroundTasks):
             "note": "Refresh started in background. Check /status?cat_id=5 for last_good_utc updates.",
         },
     )
+from fastapi import Request
+from fastapi.responses import PlainTextResponse
+import asyncio
+
+@app.post("/wa")
+async def wa(request: Request):
+    form = await request.form()
+    body = (form.get("Body") or "").strip().lower()
+
+    # 你 WhatsApp 打 "all" → 觸發 refresh_all
+    if body == "all":
+        # 用背景方式做，避免 Twilio 等太耐
+        asyncio.create_task(refresh_all_internal())
+        return PlainTextResponse("OK")
+
+    # 你 WhatsApp 打 "r 5" → 觸發 refresh cat 5
+    if body.startswith("r "):
+        try:
+            cat = int(body.split()[1])
+            asyncio.create_task(refresh_one_internal(cat))
+            return PlainTextResponse("OK")
+        except:
+            return PlainTextResponse("OK")
+
+    return PlainTextResponse("OK")
+
