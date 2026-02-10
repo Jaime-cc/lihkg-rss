@@ -352,3 +352,37 @@ async def wa(request: Request):
 
     return PlainTextResponse("OK")
 
+# ============================
+# WhatsApp Bot Webhook (/wa)
+# ============================
+
+from fastapi import Request
+from fastapi.responses import PlainTextResponse
+
+@app.post("/wa")
+async def wa(request: Request):
+    """
+    Twilio WhatsApp webhook endpoint
+
+    WhatsApp send: all
+    → triggers refresh_all
+    """
+
+    form = await request.form()
+    msg = form.get("Body", "").strip().lower()
+
+    # User sends "all"
+    if msg == "all":
+        threading.Thread(target=refresh_all_worker).start()
+        return PlainTextResponse("OK ✅ refresh_all started")
+
+    # User sends "5"
+    if msg.isdigit():
+        cat_id = int(msg)
+        threading.Thread(target=refresh_one_worker, args=(cat_id,)).start()
+        return PlainTextResponse(f"OK ✅ refresh cat {cat_id} started")
+
+    return PlainTextResponse("Send: all  OR  a number like 5")
+
+
+
