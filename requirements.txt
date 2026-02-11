@@ -7,3 +7,4 @@ cachetools
 httpx==0.27.0
 anyio
 async-timeout
+python-multipart
